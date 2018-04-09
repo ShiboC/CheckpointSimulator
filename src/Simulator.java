@@ -1,11 +1,12 @@
 import java.util.HashSet;
 
 public class Simulator {
-    public int lastCheckpoint = -1;
-    public int restartedSuperstep = -1;
-    public int supersteps = 0; //total supersteps
-    // public int checkpointCost=0;
-    public CheckpointStrategy checkpointStrategy;
+    private int lastCheckpoint = -1;
+    private int restartedSuperstep = -1;
+    private int supersteps = 0; //total supersteps
+    private int recoveryOverhead = 0;
+    private int checkpointCost = 0;
+    private CheckpointStrategy checkpointStrategy;
 
 
     public Simulator() {
@@ -17,22 +18,18 @@ public class Simulator {
     }
 
     public static void main(String[] args) {
-        CheckpointStrategy checkpointStrategy = new CheckpointStrategy(0, false);
+        CheckpointStrategy checkpointStrategy = new CheckpointStrategy(0, true);
         Simulator simulator = new Simulator(10, checkpointStrategy);
         //  simulator.checkpointCost=2;
-        int[] computeTime1 = simulator.generateComputeTime(5);
-        for (int i = 0; i < computeTime1.length; i++) {
-            System.out.println(computeTime1[i]);
-        }
-        int[] computeTime2 = simulator.generateComputeTime(10, 1, 1000, 3);
-        for (int i = 0; i < computeTime2.length; i++) {
-            System.out.println(computeTime2[i]);
-        }
+        int[] computeTime1 = simulator.generateComputeTime(2);
+        int[] computeTime2 = simulator.generateComputeTime(3, 3, 100, 3);
+
         HashSet<Integer> failureSteps = new HashSet<Integer>();
         failureSteps.add(3);
         failureSteps.add(7);
-
-
+        simulator.recoveryOverhead = 2;
+        simulator.checkpointCost = 5;
+        simulator.printResult(computeTime1, failureSteps);
     }
 
     /**
@@ -42,13 +39,13 @@ public class Simulator {
      * @param checkpointStrategy
      * @return checkpoint status
      */
-    public CheckpointStatus getCheckpointStatus(int superstep, CheckpointStrategy checkpointStrategy) {
+    public CheckpointStatus getCheckpointStatus(int superstep, CheckpointStrategy checkpointStrategy, int[] computeTime) {
         //no checkpoint
         if (checkpointStrategy.isDynamic() == false && checkpointStrategy.getInterval() == 0) {
             return CheckpointStatus.NONE;
         }
         //static interval checkpoint
-        if (checkpointStrategy.isDynamic() == false && checkpointStrategy.getInterval() > 0) {
+        if (checkpointStrategy.isDynamic() == false) {
             long firstCheckpoint = 0;
             if (restartedSuperstep != -1) {
                 firstCheckpoint = restartedSuperstep + checkpointStrategy.getInterval();
@@ -56,11 +53,25 @@ public class Simulator {
             if (superstep < firstCheckpoint) {
                 return CheckpointStatus.NONE;
             }
-            if (((superstep - firstCheckpoint) % checkpointStrategy.getInterval()) == 0) {
+            if (((superstep - firstCheckpoint) % checkpointStrategy.getInterval()) == 0 && lastCheckpoint != superstep) {
                 return CheckpointStatus.CHECKPOINT;
 
             }
             return CheckpointStatus.NONE;
+        }
+        //dynamic checkpoint
+        if (checkpointStrategy.isDynamic() == true) {
+            if (lastCheckpoint == -1) {
+                return CheckpointStatus.CHECKPOINT;
+            }
+            int recoveryCost = recoveryOverhead;
+
+            for (int i = lastCheckpoint; i < superstep; i++) {
+                recoveryCost += computeTime[i];
+            }
+            if (checkpointCost <= recoveryCost && (superstep - lastCheckpoint >= checkpointStrategy.getInterval())) {
+                return CheckpointStatus.CHECKPOINT;
+            }
         }
         return CheckpointStatus.NONE;
     }
@@ -72,7 +83,7 @@ public class Simulator {
      * @return an array of computetime
      */
     public int[] generateComputeTime(int value) {
-        int size = this.supersteps;
+        int size = this.supersteps + 1;
         int[] computeTime = new int[size];
 
         for (int i = 0; i < size; i++) {
@@ -91,9 +102,9 @@ public class Simulator {
      * @param minvalue   default minvalue of the distribution
      * @return an array of computetime
      */
-    public int[] generateComputeTime(int mean, int std_dev, int multiplier, int minvalue) {
+    public int[] generateComputeTime(double mean, double std_dev, double multiplier, int minvalue) {
         int size = this.supersteps;
-        int[] computeTime = new int[size];
+        int[] computeTime = new int[size + 1];
 
         for (int i = 0; i < size; i++) {
             double fx = 1 / (Math.sqrt(2 * Math.PI) * std_dev) * Math.pow(Math.E, (-0.5 * Math.pow(i - mean, 2) / Math.pow(std_dev, 2)));
@@ -106,16 +117,17 @@ public class Simulator {
     }
 
 
-    public void printResult(int[] computeTime, int checkpointTime, HashSet<Integer> failureSteps) {
+    public void printResult(int[] computeTime, HashSet<Integer> failureSteps) {
         int superstep = 0;
         long time = 0;
 
         do {
-            CheckpointStatus checkpointStatus = this.getCheckpointStatus(superstep, this.checkpointStrategy);
+            CheckpointStatus checkpointStatus = this.getCheckpointStatus(superstep, this.checkpointStrategy, computeTime);
             long endCheckpoint = time;
             if (checkpointStatus == CheckpointStatus.CHECKPOINT) {
-                endCheckpoint = time + checkpointTime;
-                System.out.println("superstep:" + (superstep + 1) + "; checkpoint start:" + time + "; end:" + endCheckpoint + "; duration:" + checkpointTime);
+                endCheckpoint = time + checkpointCost;
+                System.out.println("superstep:" + superstep + "; checkpoint start:" + time + "; end:" + endCheckpoint +
+                        "; duration:" + checkpointCost);
                 this.lastCheckpoint = superstep;
             }
             if (failureSteps.contains(superstep)) {
@@ -124,13 +136,17 @@ public class Simulator {
                     break;
                 } else {
                     System.out.println("restart from superstep:" + this.lastCheckpoint);
+                    System.out.println("recovery overhead start:" + time + "; end:" + (time + recoveryOverhead) +
+                            "; duration:" + recoveryOverhead);
+                    time += recoveryOverhead;
                     failureSteps.remove(superstep);
-                    superstep=lastCheckpoint;
+                    superstep = lastCheckpoint;
                     continue;
                 }
-            }else{
+            } else {
                 long endCompute = endCheckpoint + computeTime[superstep];
-                System.out.println("superstep:" + superstep + "; compute start:" + endCheckpoint + "; end:" + endCompute + "; duration:" + endCompute);
+                System.out.println("superstep:" + superstep + "; compute start:" + endCheckpoint + "; end:" +
+                        endCompute + "; duration:" + (endCompute - endCheckpoint));
                 time = endCompute;
             }
             superstep++;
