@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 
 public class Simulator {
     private int lastCheckpoint = -1;
@@ -7,7 +9,7 @@ public class Simulator {
     private int recoveryOverhead = 0;
     private int checkpointCost = 0;
     private CheckpointStrategy checkpointStrategy;
-
+//    private ArrayList<IterationUnit> iterationUnits =new ArrayList<IterationUnit>(); //each iteration's running time result
 
     public Simulator() {
     }
@@ -18,18 +20,36 @@ public class Simulator {
     }
 
     public static void main(String[] args) {
-        CheckpointStrategy checkpointStrategy = new CheckpointStrategy(0, true);
+        CheckpointStrategy checkpointStrategy = new CheckpointStrategy(1, false);
         Simulator simulator = new Simulator(10, checkpointStrategy);
-        //  simulator.checkpointCost=2;
+        simulator.recoveryOverhead = 2;
+        simulator.checkpointCost = 5;
         int[] computeTime1 = simulator.generateComputeTime(2);
         int[] computeTime2 = simulator.generateComputeTime(3, 3, 100, 3);
 
         HashSet<Integer> failureSteps = new HashSet<Integer>();
         failureSteps.add(3);
         failureSteps.add(7);
-        simulator.recoveryOverhead = 2;
-        simulator.checkpointCost = 5;
+        HashSet<Integer> backup=new HashSet<Integer>();
+        //failureSteps add by poisson distribution
+        int lamda=1;
+        for(int i=1;i<=simulator.supersteps;i++){
+            double rate=poissonDistributionDensity(i,1);
+            if(Math.random()<=rate){
+                failureSteps.add(i);
+            }
+        }
+
+        System.out.println("failureSteps:"+failureSteps.toString());
+        backup=(HashSet<Integer>) failureSteps.clone();
         simulator.printResult(computeTime1, failureSteps);
+        simulator.restartedSuperstep=-1;
+        simulator.lastCheckpoint=-1;
+        System.out.println(backup);
+        ArrayList<IterationUnit> iterationUnits=simulator.generateResult(computeTime1, backup);
+        for (int i=0;i<iterationUnits.size();i++) {
+            System.out.println(iterationUnits.get(i));
+        }
     }
 
     /**
@@ -116,7 +136,75 @@ public class Simulator {
         return computeTime;
     }
 
+    public static double poissonDistributionDensity(int k, int lambda){
+        int kProd=1;
+        for(int i=1;i<=k;i++){
+            kProd*=i;
+        }
+        return Math.pow(lambda,k)*Math.pow(Math.E,-lambda)/kProd;
+    }
+    public ArrayList<IterationUnit> generateResult(int[] computeTime, HashSet<Integer> failureSteps) {
+        ArrayList<IterationUnit> iterationUnits=new ArrayList<>();
+        int superstep = 0;
+        long time = 0;
+        do {
+//            System.out.println(superstep);
+            IterationUnit iterationUnit=new IterationUnit();
+            if(iterationUnits.size()!=0) {
+                if(!iterationUnits.get(iterationUnits.size()-1).isRestarted()||iterationUnits.get(iterationUnits.size()-1).getComputeEnd()!=0){//if it is not the a just restarted superstep
+                    iterationUnit.setAttepmt(iterationUnits.get(iterationUnits.size() - 1).getAttepmt());// attempt equals to the last one
+                    iterationUnit.setSuperstep(superstep);
+                    iterationUnits.add(iterationUnit);
+//                    System.out.println("not just restarted. add new");
+                }
+            }else{
+                iterationUnits.add(iterationUnit);
+//                System.out.println("size 0 add new");
+            }
 
+
+            CheckpointStatus checkpointStatus = this.getCheckpointStatus(superstep, this.checkpointStrategy, computeTime);
+            if (checkpointStatus == CheckpointStatus.CHECKPOINT) {
+                iterationUnit.setCheckpointStart(time);
+                time+=checkpointCost;
+                iterationUnit.setCheckpointEnd(time);
+                this.lastCheckpoint = superstep;
+//                System.out.println("do checkpoint");
+            }
+            if (failureSteps.contains(superstep)) {
+//                System.out.println("do kill");
+                iterationUnit.setKilled(true);
+//                System.out.println(iterationUnit);
+                if (checkpointStrategy.getInterval() == 0 && checkpointStrategy.isDynamic() == false) {//no checkpoint. job stopped
+//                    System.out.println("ck none. jump");
+                    break;
+                } else {//restart
+//                    System.out.println("restarted");
+                    IterationUnit iterationUnit2=new IterationUnit();
+                    iterationUnit2.setAttepmt(iterationUnits.get(iterationUnits.size()-1).getAttepmt()+1);//attempt incremented
+                    iterationUnit2.setRestarted(true);
+                    iterationUnit2.setSuperstep(this.lastCheckpoint);
+                    iterationUnit2.setRecoveryOverheadStart(time);
+                    time+=recoveryOverhead;
+                    iterationUnit2.setRecoveryOverheadEnd(time);
+                    iterationUnits.add(iterationUnit2);
+                    failureSteps.remove(superstep);
+                    superstep = lastCheckpoint;
+//                    System.out.println(iterationUnit2);
+                    continue;
+                }
+            } else {
+                iterationUnits.get(iterationUnits.size()-1).setComputeStart(time);
+                time += computeTime[superstep];
+                iterationUnits.get(iterationUnits.size()-1).setComputeEnd(time);
+//                System.out.println("compute");
+//                System.out.println(iterationUnits.get(iterationUnits.size()-1));
+            }
+            superstep++;
+        } while (superstep <= this.supersteps);
+        return iterationUnits;
+
+    }
     public void printResult(int[] computeTime, HashSet<Integer> failureSteps) {
         int superstep = 0;
         long time = 0;
@@ -129,6 +217,7 @@ public class Simulator {
                 System.out.println("superstep:" + superstep + "; checkpoint start:" + time + "; end:" + endCheckpoint +
                         "; duration:" + checkpointCost);
                 this.lastCheckpoint = superstep;
+                time+=checkpointCost;
             }
             if (failureSteps.contains(superstep)) {
                 System.out.println("kill at superstep:" + superstep);
