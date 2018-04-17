@@ -1,9 +1,11 @@
+package factory;
+
 //granularity: attempt+superstep
 public class IterationUnit {
     private int attepmt=0; //job attempt, increment when a job is restarted
     private int superstep=0;
-    private boolean restarted=false; //this superstep is restarted or not
-    private boolean killed=false; //this superstep is killed or not
+    private long restartTime=0; //this superstep is restarted or not
+    private long killTime=0; //this superstep is killed or not
     private long checkpointStart=0;
     private long checkpointEnd=0;
     private long computeStart=0;
@@ -13,11 +15,11 @@ public class IterationUnit {
 
     @Override
     public String toString() {
-        return "IterationUnit{" +
+        return "simple.IterationUnit{" +
                 "attepmt=" + attepmt +
                 ", superstep=" + superstep +
-                ", restarted=" + restarted +
-                ", killed=" + killed +
+                ", restartTime=" + restartTime +
+                ", killTime=" + killTime +
                 ", checkpointStart=" + checkpointStart +
                 ", checkpointEnd=" + checkpointEnd +
                 ", computeStart=" + computeStart +
@@ -43,20 +45,20 @@ public class IterationUnit {
         this.superstep = superstep;
     }
 
-    public boolean isRestarted() {
-        return restarted;
+    public long getRestartTime() {
+        return restartTime;
     }
 
-    public void setRestarted(boolean restarted) {
-        this.restarted = restarted;
+    public void setRestartTime(long restartTime) {
+        this.restartTime = restartTime;
     }
 
-    public boolean isKilled() {
-        return killed;
+    public long getKillTime() {
+        return killTime;
     }
 
-    public void setKilled(boolean killed) {
-        this.killed = killed;
+    public void setKillTime(long killTime) {
+        this.killTime = killTime;
     }
 
     public long getCheckpointStart() {

@@ -1,3 +1,5 @@
+package simple;
+
 public class CheckpointStrategy {
     private int interval;
     private boolean dynamic; //if is false, then it is static checkpoint strategy
