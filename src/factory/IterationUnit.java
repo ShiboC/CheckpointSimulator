@@ -4,7 +4,6 @@ package factory;
 public class IterationUnit {
     private int attepmt=0; //job attempt, increment when a job is restarted
     private int superstep=0;
-    private long restartTime=0; //this superstep is restarted or not
     private long killTime=0; //this superstep is killed or not
     private long checkpointStart=0;
     private long checkpointEnd=0;
@@ -18,7 +17,6 @@ public class IterationUnit {
         return "simple.IterationUnit{" +
                 "attepmt=" + attepmt +
                 ", superstep=" + superstep +
-                ", restartTime=" + restartTime +
                 ", killTime=" + killTime +
                 ", checkpointStart=" + checkpointStart +
                 ", checkpointEnd=" + checkpointEnd +
@@ -45,13 +43,6 @@ public class IterationUnit {
         this.superstep = superstep;
     }
 
-    public long getRestartTime() {
-        return restartTime;
-    }
-
-    public void setRestartTime(long restartTime) {
-        this.restartTime = restartTime;
-    }
 
     public long getKillTime() {
         return killTime;

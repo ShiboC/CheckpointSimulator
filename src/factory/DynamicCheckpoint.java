@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class DynamicCheckpoint extends CheckpointStrategy {
     @Override
     public CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint, int restartedSuperstep, int[] computeTime) {
+//        System.out.println("supersteps:"+superstep+",last checkpoint:"+lastCheckpoint);
         if (lastCheckpoint == -1) {
             return CheckpointStatus.CHECKPOINT;
         }
@@ -18,6 +19,7 @@ public class DynamicCheckpoint extends CheckpointStrategy {
             sumCheckpointCost+=checkpointCost.get(i);
         }
         double avgCheckpointCost=sumCheckpointCost/checkpointCost.size();
+//        System.out.println("avgckcost:"+avgCheckpointCost);
         if (avgCheckpointCost <= recoveryCost && (superstep - lastCheckpoint >= this.getInterval())) {
             return CheckpointStatus.CHECKPOINT;
         }
