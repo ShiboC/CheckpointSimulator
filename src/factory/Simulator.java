@@ -28,19 +28,25 @@ public class Simulator implements Cloneable {
     }
 
     public static void main(String[] args) throws Exception {
+        String resultPath = "result.csv";
         // set up checkpoint strategy.
-        CheckpointStrategy checkpointStrategy = CheckpointStrategyFactory.getClass(NoCheckpoint.class);
-        //   checkpointStrategy.setInterval(2);
+        CheckpointStrategy checkpointStrategy = CheckpointStrategyFactory.getClass(DynamicCheckpoint.class);
+//        checkpointStrategy.setInterval(2);
         // configure simulator
         Simulator simulator = new Simulator(10, 1, checkpointStrategy);
 
         simulator.recoveryOverhead = 2;
         // pre-generate checkpointCost Pool, actual checkpoint number is less, will be added during running.
-        simulator.checkpointCost = DataGenerator.getSameData(simulator.supersteps + 1, 5);
+        simulator.checkpointCost = DataGenerator.getSameData(simulator.supersteps + 2, 10);
+        simulator.checkpointCost = DataGenerator.modifyData(DataGenerator.getNormalDistributionData(simulator.supersteps + 1, 10, 1), 1, 0);
         simulator.computeTime = DataGenerator.modifyData(DataGenerator.getNormalDistributionDensity(
                 simulator.supersteps + 1, 3, 3), 100, 3);
-        simulator.computeTime = DataGenerator.getSameData(simulator.supersteps + 1, 2);
-
+//        simulator.computeTime = DataGenerator.getSameData(simulator.supersteps + 1, 2);
+        System.out.println("computeTime:");
+        for (int ft : simulator.computeTime) {
+            System.out.print(ft + ",");
+        }
+        System.out.println();
         Simulator a = (Simulator) simulator.clone();
         //set up failure step up, failure time interval follows exponential distribution.
         // assume the whole running time without failure is 1, lambda is the expected failure numbers.
@@ -53,10 +59,17 @@ public class Simulator implements Cloneable {
             System.out.print(ft + ",");
         }
         System.out.println();
+
+        System.out.println("checkpoint cost:");
+        for (int ft : simulator.checkpointCost) {
+            System.out.print(ft + ",");
+        }
+        System.out.println();
 //        simulator.printResult(simulator.computeTime, simulator.failureSteps);
 
 //        ArrayList<IterationUnit> iterationUnits = simulator.generateResultByStep(simulator.failureSteps);
         ArrayList<IterationUnit> iterationUnits = simulator.generateResultByTime(simulator.failureTime);
+        CSVUtils.exportCsv(resultPath, iterationUnits);
 
         for (int i = 0; i < iterationUnits.size(); i++) {
             System.out.println(iterationUnits.get(i));
@@ -94,7 +107,7 @@ public class Simulator implements Cloneable {
 //        System.out.println(totalTime);
         double[] failureIntervalList = DataGenerator.getExponentialDistributionData(stemp.supersteps, lambda);
         int[] failureTime = new int[stemp.supersteps];
-        failureTime[0] = (int) Math.round(failureIntervalList[0] * totalTime);
+        failureTime[0] = (int) Math.round(failureIntervalList[0] * totalTime) + 1;
         for (int i = 1; i < stemp.supersteps; i++) {
             failureTime[i] = failureTime[i - 1] + (int) Math.round(failureIntervalList[i] * totalTime);
         }
@@ -193,12 +206,16 @@ public class Simulator implements Cloneable {
                     if (failureTime[failureCounter] >= time && failureTime[failureCounter] <= time + recoveryOverhead) {
                         iterationUnit.setKillTime(failureTime[failureCounter]);
                         time = failureTime[failureCounter];
-
-                        failureCounter++;
-                        if (this.checkpointStrategy.getClass()==NoCheckpoint.class) {
+                        if (failureCounter < this.supersteps-1) {
+                            failureCounter++;
+                        }
+                        if (this.checkpointStrategy.getClass() == NoCheckpoint.class) {
                             return iterationUnits;
                         }
-                        superstep = lastCheckpoint;
+//                        System.out.println("fas;s:"+lastCheckpoint+","+superstep);
+                        superstep = (lastCheckpoint == -1) ? 0 : lastCheckpoint;
+
+
                         continue;
                     }
                     time += recoveryOverhead;
@@ -212,16 +229,20 @@ public class Simulator implements Cloneable {
             CheckpointStatus checkpointStatus = this.checkpointStrategy.getCheckpointStatus(superstep, checkpointCostActual, this.recoveryOverhead, this.lastCheckpoint, this.restartedSuperstep, this.computeTime);
             if (checkpointStatus == CheckpointStatus.CHECKPOINT) {
                 iterationUnit.setCheckpointStart(time);
+
                 if (failureTime[failureCounter] >= time && failureTime[failureCounter] <= time + checkpointCost[checkpointCounter]) {
                     iterationUnit.setKillTime(failureTime[failureCounter]);
                     time = failureTime[failureCounter];
 
-                    failureCounter++;
+                    if (failureCounter < this.supersteps-1) {
+                        failureCounter++;
+                    }
 
-                    if (this.checkpointStrategy.getClass()==NoCheckpoint.class) {
+                    if (this.checkpointStrategy.getClass() == NoCheckpoint.class) {
                         return iterationUnits;
                     }
-                    superstep = lastCheckpoint;
+                    superstep = (lastCheckpoint == -1) ? 0 : lastCheckpoint;
+
                     continue;
                 }
                 time += checkpointCost[checkpointCounter];
@@ -234,16 +255,20 @@ public class Simulator implements Cloneable {
             //do compute
 
             iterationUnit.setComputeStart(time);
+
             if (failureTime[failureCounter] >= time && failureTime[failureCounter] <= time + computeTime[superstep]) {
                 iterationUnit.setKillTime(failureTime[failureCounter]);
                 time = failureTime[failureCounter];
 
-                failureCounter++;
+                if (failureCounter < this.supersteps-1) {
+                    failureCounter++;
+                }
 
-                if (this.checkpointStrategy.getClass()==NoCheckpoint.class) {
+                if (this.checkpointStrategy.getClass() == NoCheckpoint.class) {
                     return iterationUnits;
                 }
-                superstep = lastCheckpoint;
+                superstep = (lastCheckpoint == -1) ? 0 : lastCheckpoint;
+
                 continue;
             }
             time += computeTime[superstep];

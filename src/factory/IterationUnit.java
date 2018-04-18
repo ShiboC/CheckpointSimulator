@@ -27,6 +27,18 @@ public class IterationUnit {
                 '}';
     }
 
+    public String toCsvString() {
+        return  attepmt +
+                "," + superstep +
+                "," + killTime +
+                "," + checkpointStart +
+                "," + checkpointEnd +
+                "," + computeStart +
+                "," + computeEnd +
+                "," + recoveryOverheadStart +
+                "," + recoveryOverheadEnd ;
+    }
+
     public int getAttepmt() {
         return attepmt;
     }
