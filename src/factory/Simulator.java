@@ -30,8 +30,8 @@ public class Simulator implements Cloneable {
     public static void main(String[] args) throws Exception {
         String resultPath = "result.csv";
         // set up checkpoint strategy.
-        CheckpointStrategy checkpointStrategy = CheckpointStrategyFactory.getClass(DynamicCheckpoint.class);
-//        checkpointStrategy.setInterval(2);
+        CheckpointStrategy checkpointStrategy = CheckpointStrategyFactory.getClass(StaticCheckpoint.class);
+        checkpointStrategy.setInterval(1);
         // configure simulator
         Simulator simulator = new Simulator(10, 1, checkpointStrategy);
 
@@ -47,13 +47,12 @@ public class Simulator implements Cloneable {
             System.out.print(ft + ",");
         }
         System.out.println();
-        Simulator a = (Simulator) simulator.clone();
         //set up failure step up, failure time interval follows exponential distribution.
         // assume the whole running time without failure is 1, lambda is the expected failure numbers.
-        simulator.failureSteps = simulator.generateFailureSteps(3);
-        System.out.println("failureSteps:" + simulator.failureSteps.toString());
+//        simulator.failureSteps = simulator.generateFailureSteps(3);
+//        System.out.println("failureSteps:" + simulator.failureSteps.toString());
 
-        simulator.failureTime = simulator.generateFailureTime(3);
+        simulator.failureTime = DataGenerator.modifyData(DataGenerator.getExponentialDistributionData(100, 3),1000,1);;
         System.out.println("failureTime:");
         for (int ft : simulator.failureTime) {
             System.out.print(ft + ",");
@@ -77,44 +76,44 @@ public class Simulator implements Cloneable {
     }
 
     // failure steps' time interval follows exponential distribution
-    public HashSet<Integer> generateFailureSteps(int lambda) throws CloneNotSupportedException {
-        HashSet<Integer> failureSteps = new HashSet<Integer>();
-        Simulator stemp = (Simulator) this.clone();
-        ArrayList<IterationUnit> iterationUnitsWithoutFailure = stemp.generateResultByStep(failureSteps);
-        long totalTime = iterationUnitsWithoutFailure.get(iterationUnitsWithoutFailure.size() - 1).getComputeEnd();
-//        System.out.println(totalTime);
-        double[] failureIntervalList = DataGenerator.getExponentialDistributionData(stemp.supersteps, lambda);
-        double timer = failureIntervalList[0] * totalTime;
+//    public HashSet<Integer> generateFailureSteps(int lambda) throws CloneNotSupportedException {
+//        HashSet<Integer> failureSteps = new HashSet<Integer>();
+//        Simulator stemp = (Simulator) this.clone();
+//        ArrayList<IterationUnit> iterationUnitsWithoutFailure = stemp.generateResultByStep(failureSteps);
+//        long totalTime = iterationUnitsWithoutFailure.get(iterationUnitsWithoutFailure.size() - 1).getComputeEnd();
+////        System.out.println(totalTime);
+//        double[] failureIntervalList = DataGenerator.getExponentialDistributionData(stemp.supersteps, lambda);
+//        double timer = failureIntervalList[0] * totalTime;
+//
+//        int failureCounter = 0;
+//        for (IterationUnit i : iterationUnitsWithoutFailure) {
+////            System.out.println("timer:"+timer);
+//            if (i.getCheckpointStart() <= timer && i.getComputeEnd() >= timer) {
+//                failureSteps.add(i.getSuperstep());
+//                failureCounter++;
+//                timer += failureIntervalList[failureCounter] * totalTime;
+//            }
+//        }
+//        return failureSteps;
+//
+//    }
 
-        int failureCounter = 0;
-        for (IterationUnit i : iterationUnitsWithoutFailure) {
-//            System.out.println("timer:"+timer);
-            if (i.getCheckpointStart() <= timer && i.getComputeEnd() >= timer) {
-                failureSteps.add(i.getSuperstep());
-                failureCounter++;
-                timer += failureIntervalList[failureCounter] * totalTime;
-            }
-        }
-        return failureSteps;
-
-    }
-
-    public int[] generateFailureTime(int lambda) throws CloneNotSupportedException {
-
-        Simulator stemp = (Simulator) this.clone();
-        ArrayList<IterationUnit> iterationUnitsWithoutFailure = stemp.generateResultByStep(new HashSet<Integer>());
-        long totalTime = iterationUnitsWithoutFailure.get(iterationUnitsWithoutFailure.size() - 1).getComputeEnd();
-//        System.out.println(totalTime);
-        double[] failureIntervalList = DataGenerator.getExponentialDistributionData(stemp.supersteps, lambda);
-        int[] failureTime = new int[stemp.supersteps];
-        failureTime[0] = (int) Math.round(failureIntervalList[0] * totalTime) + 1;
-        for (int i = 1; i < stemp.supersteps; i++) {
-            failureTime[i] = failureTime[i - 1] + (int) Math.round(failureIntervalList[i] * totalTime);
-        }
-        return failureTime;
-
-    }
-
+//    public int[] generateFailureTime(int lambda) throws CloneNotSupportedException {
+//
+//        Simulator stemp = (Simulator) this.clone();
+//        ArrayList<IterationUnit> iterationUnitsWithoutFailure = stemp.generateResultByStep(new HashSet<Integer>());
+//        long totalTime = iterationUnitsWithoutFailure.get(iterationUnitsWithoutFailure.size() - 1).getComputeEnd();
+////        System.out.println(totalTime);
+//        double[] failureIntervalList = DataGenerator.getExponentialDistributionData(100, lambda);
+//        int[] failureTime = new int[stemp.supersteps];
+//        failureTime[0] = (int) Math.round(failureIntervalList[0] * totalTime) + 1;
+//        for (int i = 1; i < stemp.supersteps; i++) {
+//            failureTime[i] = failureTime[i - 1] + (int) Math.round(failureIntervalList[i] * totalTime);
+//        }
+//        return failureTime;
+//
+//    }
+//
     public ArrayList<IterationUnit> generateResultByStep(HashSet<Integer> failureSteps) {
         ArrayList<IterationUnit> iterationUnits = new ArrayList<>();
         int superstep = 0;

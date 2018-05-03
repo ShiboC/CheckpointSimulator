@@ -41,8 +41,8 @@ public class DataGenerator {
 //        }
 //        return Math.pow(lambda, k) * Math.pow(Math.E, -lambda) / kProd;
 //    }
-
-    public static double[] getExponentialDistributionData(int size, double lambda) {
+    //expected value is 1/lambda in a period of "unit" time
+    public static double[] getExponentialDistributionData(int size,double lambda) {
         double[] dataList = new double[size];
         for (int i = 0; i < size; i++) {
             dataList[i] = -1 / lambda * Math.log(Math.random());//                x = -(1 / lamda) * Math.log(z);
