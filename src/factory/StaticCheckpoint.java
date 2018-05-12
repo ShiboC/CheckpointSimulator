@@ -6,10 +6,10 @@ public class StaticCheckpoint extends CheckpointStrategy {
 
 
     @Override
-    public CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint, int restartedSuperstep, int[] computeTime) {
+    public CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint, int[] computeTime) {
         long firstCheckpoint = 0;
-        if (restartedSuperstep != -1) {
-            firstCheckpoint = restartedSuperstep + this.getInterval();
+        if (lastCheckpoint != -1) {
+            firstCheckpoint = lastCheckpoint + this.getInterval();
         }
         if (superstep < firstCheckpoint) {
             return CheckpointStatus.NONE;

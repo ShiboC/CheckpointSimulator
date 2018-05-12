@@ -7,7 +7,7 @@ public class NoCheckpoint extends CheckpointStrategy {
 
 
     @Override
-    public CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint, int restartedSuperstep, int[] computeTime) {
+    public CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint,  int[] computeTime) {
         return CheckpointStatus.NONE;
     }
 }
