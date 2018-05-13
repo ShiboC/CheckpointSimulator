@@ -20,10 +20,16 @@ public class IterationUnit {
                 ", killTime=" + killTime +
                 ", checkpointStart=" + checkpointStart +
                 ", checkpointEnd=" + checkpointEnd +
+                ", checkpointDuration=" + (checkpointEnd-checkpointStart) +
+
                 ", computeStart=" + computeStart +
                 ", computeEnd=" + computeEnd +
+                ", computeDuration=" + (computeEnd-computeStart) +
+
                 ", recoveryOverheadStart=" + recoveryOverheadStart +
                 ", recoveryOverheadEnd=" + recoveryOverheadEnd +
+                ", recoveryOverheadDuration=" + (recoveryOverheadEnd-recoveryOverheadStart) +
+
                 '}';
     }
 
@@ -33,10 +39,14 @@ public class IterationUnit {
                 "," + killTime +
                 "," + checkpointStart +
                 "," + checkpointEnd +
+                ","+(checkpointEnd-checkpointStart)+
                 "," + computeStart +
                 "," + computeEnd +
+                "," + (computeEnd-computeStart) +
                 "," + recoveryOverheadStart +
-                "," + recoveryOverheadEnd ;
+                "," + recoveryOverheadEnd+
+        "," + (recoveryOverheadEnd-recoveryOverheadStart)
+        ;
     }
 
     public int getAttepmt() {

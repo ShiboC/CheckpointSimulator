@@ -33,8 +33,8 @@ public class CSVUtils {
             out = new FileOutputStream(file);
             osw = new OutputStreamWriter(out);
             bw =new BufferedWriter(osw);
-            bw.append("attepmt,superstep,killTime,checkpointStart,checkpointEnd" +
-                    ",computeStart,computeEnd,recoveryOverheadStart,recoveryOverheadEnd\r");
+            bw.append("attepmt,superstep,killTime,checkpointStart,checkpointEnd,checkpointDuration" +
+                    ",computeStart,computeEnd,computeDuration,recoveryOverheadStart,recoveryOverheadEnd.recoveryOverheadDuration\r");
             if(dataList!=null && !dataList.isEmpty()){
                 for(IterationUnit data : dataList){
                     bw.append(data.toCsvString()).append("\r");

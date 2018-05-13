@@ -9,7 +9,7 @@ public class DynamicCheckpoint extends CheckpointStrategy {
         if (lastCheckpoint == -1) {
             return CheckpointStatus.CHECKPOINT;
         }
-        int recoveryCost = recoveryOverhead;
+        int recoveryCost =0;
 
         for (int i = lastCheckpoint; i < superstep; i++) {
             recoveryCost += computeTime[i];

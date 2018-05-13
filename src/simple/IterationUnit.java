@@ -8,8 +8,10 @@ public class IterationUnit {
     private boolean killed=false; //this superstep is killed or not
     private long checkpointStart=0;
     private long checkpointEnd=0;
+//    private long checkpointDuration=0;
     private long computeStart=0;
     private long computeEnd=0;
+//    private long computeDuration=0;
     private long recoveryOverheadStart=0;
     private long recoveryOverheadEnd=0;
 
@@ -22,10 +24,16 @@ public class IterationUnit {
                 ", killed=" + killed +
                 ", checkpointStart=" + checkpointStart +
                 ", checkpointEnd=" + checkpointEnd +
+                ", checkpointDuration=" + (checkpointEnd-checkpointStart) +
+
                 ", computeStart=" + computeStart +
                 ", computeEnd=" + computeEnd +
+                ", computeDuration=" + (computeEnd-computeStart) +
+
                 ", recoveryOverheadStart=" + recoveryOverheadStart +
                 ", recoveryOverheadEnd=" + recoveryOverheadEnd +
+                ", recoveryOverheadDuration=" + (recoveryOverheadEnd-recoveryOverheadStart) +
+
                 '}';
     }
 
