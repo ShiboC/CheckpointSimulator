@@ -1,4 +1,5 @@
 import factory.DataGenerator;
+import factory.Simulator;
 import simple.IterationUnit;
 
 import java.util.ArrayList;
@@ -6,18 +7,26 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class test {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 //        for(int i=0;i<30;i++){
 //            System.out.println(poissonDistributionDensity(i,2));
 //        }
-
-
+        Simulator s=new Simulator();
+//        s.generateFailureTime(1,1,1,30);
+        for(int i=0;i<4;i++) {
+            System.out.println(Math.round(Math.random() * 47));
+        }
+        //7,19,31,43
+        //43
+        //7
+        //31
         HashSet<Long> test;
-        System.out.println();
-        double[] test1 = DataGenerator.getExponentialDistributionData(100, 1);
+        System.out.println("start");
+        int[] test1 = DataGenerator.modifyData(DataGenerator.getExponentialDistributionData(100, 1), 180, 1);
         for (int i = 0; i < test1.length; i++) {
             System.out.println(test1[i]);
         }
+        System.out.println("end");
         int[] a = new int[10];
         System.out.println(a.length);
         System.out.println(a[0]);

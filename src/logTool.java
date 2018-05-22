@@ -47,6 +47,8 @@ public class logTool {
         String line = null;
         long start = 0;
         long end = 0;
+        int checkpointCounter=0;
+        int computationCounter=0;
         String firstLine = bw.readLine();
         while ((line = bw.readLine()) != null) {
             if (line.contains("coordination of superstep,0")) {
@@ -55,12 +57,19 @@ public class logTool {
             if (line.contains("coordination of superstep,47")) {
                 end = Long.parseLong(line.split(",")[3]);
             }
+            if (line.contains("checkpointStart/End")){
+                checkpointCounter++;
+            }
+            if (line.contains("computeStart/End")){
+                computationCounter++;
+            }
+
 
         }
         if(start>0 &&end>0) {
             System.out.print(filePath+","+firstLine);
 
-            System.out.println(",start(0)," + start + ",end(47)," + end + ",duration," + (end - start));
+            System.out.println(",start(0)," + start + ",end(47)," + end + ",duration," + (end - start)+",checkpointCounter,"+checkpointCounter+",computationCounter,"+computationCounter);
         }
         bw.close();
 
@@ -68,7 +77,7 @@ public class logTool {
 
     public static void main(String[] args) throws Exception {
         logTool logTool=new logTool();
-        logTool.getFileList("E:\\11-TUB\\Thesis\\新建文件夹");
+        logTool.getFileList("E:\\11-TUB\\Thesis\\0516");
 //        System.out.println(logTool.outFiles);
 //        getLogInfo("E:\\11-TUB\\Thesis\\新建文件夹\\application_1526231213015_0002\\container_1526231213015_0002_01_000002\\stdout");
         for (File f:logTool.outFiles) {

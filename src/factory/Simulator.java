@@ -2,7 +2,6 @@ package factory;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class Simulator implements Cloneable {
     private int lastCheckpoint = -1;
@@ -12,7 +11,7 @@ public class Simulator implements Cloneable {
     private int[] checkpointCost;
     private int[] computeTime;
     private int[] failureSteps;
-    private int[] failureTime;
+    private int[] failureInterval;
     private CheckpointStrategy checkpointStrategy;
 
     public Simulator() {
@@ -34,7 +33,7 @@ public class Simulator implements Cloneable {
         // configure simulator
         Simulator simulator = new Simulator(47, 1, checkpointStrategy);
 
-        simulator.recoveryOverhead = 30000;
+        simulator.recoveryOverhead = 60000;
         // pre-generate checkpointCost Pool, actual checkpoint number is less, will be added during running.
 //        simulator.checkpointCost = DataGenerator.getSameData(simulator.supersteps + 2, 10);
 //        simulator.checkpointCost = DataGenerator.modifyData(DataGenerator.getNormalDistributionData(simulator.supersteps + 1, 10, 1), 1, 0);
@@ -62,26 +61,26 @@ public class Simulator implements Cloneable {
 //        simulator.failureSteps = simulator.generateFailureSteps(3);
 //        System.out.println("failureSteps:" + simulator.failureSteps.toString());
 
-//        simulator.failureTime = DataGenerator.modifyData(DataGenerator.getExponentialDistributionData(100, 3), 1000, 1);
-        simulator.failureTime = simulator.generateFailureTime(1, 180000, 1, 30);
-//        simulator.failureTime=new int[]{33924,46681,56690,56956,80036,221256,230240,301600,313105,344717,348991,451036,454533,581655,641212,654560,655250,663841,677905,709514,786492,806954,823576,849386,859180,859199,872681,918368,925994,932724};
-        System.out.println("failureTime:");
-        for (int ft : simulator.failureTime) {
+        simulator.failureInterval = DataGenerator.modifyData(DataGenerator.getExponentialDistributionData(60, 1), 120000, 1);
+//        simulator.failureInterval = simulator.generateFailureTime(1, 180000, 1, 30);
+//        simulator.failureInterval=new int[]{5868,97953,111678,55550,8543,130566,169785,45938,170421,190684,106013,245436,164373,36042,4851,209137,686104,319519,46483,29196,25042,179031,33037,186239,86569,147925,99686,107060,98496,87773};
+        System.out.println("failureInterval:");
+        for (int ft : simulator.failureInterval) {
             System.out.print(ft + ",");
         }
         System.out.println();
 
-        System.out.println("checkpoint cost:");
-        for (int ft : simulator.checkpointCost) {
-            System.out.print(ft + ",");
-        }
-        System.out.println();
-
-        simulator.failureSteps = new int[]{10};
-        System.out.println(simulator.failureSteps);
-        simulator.checkpointStrategy=CheckpointStrategyFactory.getClass(DynamicCheckpoint.class);
+//        System.out.println("checkpoint cost:");
+//        for (int ft : simulator.checkpointCost) {
+//            System.out.print(ft + ",");
+//        }
+//        System.out.println();
+//7 19 31 43
+//        simulator.failureSteps = new int[]{7, 19, 31, 43};
+//        System.out.println(simulator.failureSteps);
+        simulator.checkpointStrategy = CheckpointStrategyFactory.getClass(DynamicCheckpoint.class);
         for (int i = 1; i <= 10; i++) {
-//            ArrayList<IterationUnit> iterationUnits = simulator.generateResultByTime(simulator.failureTime);
+//            ArrayList<IterationUnit> iterationUnits = simulator.generateResultByTime(simulator.failureInterval);
 //        ArrayList<IterationUnit> iterationUnits = simulator.generateResultByStep(new HashSet<Integer>());
             simulator.checkpointStrategy.setInterval(i);
 //            ArrayList<IterationUnit> iterationUnits = simulator.generateResultByStep();
@@ -93,9 +92,9 @@ public class Simulator implements Cloneable {
             System.out.println("interval:" + i + ",attempt:" + iterationUnits.get(iterationUnits.size() - 1).getAttepmt() + ",totaltime:" + iterationUnits.get(iterationUnits.size() - 1).getComputeEnd());
         }
         System.out.println("static");
-        simulator.checkpointStrategy=CheckpointStrategyFactory.getClass(StaticCheckpoint.class);
+        simulator.checkpointStrategy = CheckpointStrategyFactory.getClass(StaticCheckpoint.class);
         for (int i = 1; i <= 10; i++) {
-//            ArrayList<IterationUnit> iterationUnits = simulator.generateResultByTime(simulator.failureTime);
+//            ArrayList<IterationUnit> iterationUnits = simulator.generateResultByTime(simulator.failureInterval);
 //        ArrayList<IterationUnit> iterationUnits = simulator.generateResultByStep(new HashSet<Integer>());
             simulator.checkpointStrategy.setInterval(i);
 //            ArrayList<IterationUnit> iterationUnits = simulator.generateResultByStep();
@@ -106,14 +105,16 @@ public class Simulator implements Cloneable {
 //            }
             System.out.println("interval:" + i + ",attempt:" + iterationUnits.get(iterationUnits.size() - 1).getAttepmt() + ",totaltime:" + iterationUnits.get(iterationUnits.size() - 1).getComputeEnd());
         }
-//        ArrayList<IterationUnit> iterationUnits1 = simulator1.generateResultByTime(simulator1.failureTime);
+//        ArrayList<IterationUnit> iterationUnits1 = simulator1.generateResultByTime(simulator1.failureInterval);
 //        CSVUtils.exportCsv(resultPath, iterationUnits);
-        ArrayList<IterationUnit> iterationUnits = simulator.generateResultByStep();
-//        simulator.checkpointStrategy.setInterval(1);
-//        System.out.println(simulator.checkpointStrategy.getClass().getName());
-//        for (int j = 0; j < iterationUnits.size(); j++) {
-//            System.out.println(iterationUnits.get(j));
-//        }
+//        ArrayList<IterationUnit> iterationUnits = simulator.generateResultByStep();
+        ArrayList<IterationUnit> iterationUnits = simulator.generateResultByTime();
+
+        simulator.checkpointStrategy.setInterval(1);
+        System.out.println(simulator.checkpointStrategy.getClass().getName());
+        for (int j = 0; j < iterationUnits.size(); j++) {
+            System.out.println(iterationUnits.get(j));
+        }
 
 //        for (int i = 0; i < iterationUnits1.size(); i++) {
 //            System.out.println(iterationUnits1.get(i));
@@ -143,19 +144,20 @@ public class Simulator implements Cloneable {
 //
 //    }
 
-    public int[] generateFailureTime(int lambda, int period, int min, int size) throws CloneNotSupportedException {
-
-
-//        System.out.println(totalTime);
-        int[] failureIntervalList = DataGenerator.modifyData(DataGenerator.getExponentialDistributionData(size, lambda), period, min);
-        int[] failureTime = new int[size];
-        failureTime[0]=failureIntervalList[0];
-        for (int i = 1; i < size; i++) {
-            failureTime[i] = failureTime[i - 1] + failureIntervalList[i];
-        }
-        return failureTime;
-
-    }
+//    public int[] generateFailureTime(int lambda, int period, int min, int size) throws CloneNotSupportedException {
+////
+////
+//////        System.out.println(totalTime);
+//        int[] failureIntervalList = new int[]{5868,97953,111678,55550,8543,130566,169785,45938,170421,190684,106013,245436,164373,36042,4851,209137,686104,319519,46483,29196,25042,179031,33037,186239,86569,147925,99686,107060,98496,87773};
+//        int[] failureInterval = new int[size];
+//        failureInterval[0]=failureIntervalList[0];
+//        for (int i = 1; i < size; i++) {
+//            failureInterval[i] = failureInterval[i - 1] + failureIntervalList[i];
+////            System.out.println(failureInterval[i]);
+//        }
+//        return failureInterval;
+////
+//    }
 
     //only fail at compute part.
     public ArrayList<IterationUnit> generateResultByStep() {
@@ -235,6 +237,7 @@ public class Simulator implements Cloneable {
         ArrayList<IterationUnit> iterationUnits = new ArrayList<>();
         int superstep = 0;
         long time = 0;
+        long lastFailtime = 0;
         int checkpointCounter = 0;
         int failureCounter = 0;
         ArrayList<Integer> checkpointCostActual = new ArrayList<Integer>();
@@ -254,21 +257,23 @@ public class Simulator implements Cloneable {
                     iterationUnit.setSuperstep(superstep);
                     iterationUnits.add(iterationUnit);
                     iterationUnit.setRecoveryOverheadStart(time);
-                    if (failureCounter<failureTime.length&&failureTime[failureCounter] >= time && failureTime[failureCounter] <= time + recoveryOverhead) {//fail during recovery
-                        iterationUnit.setKillTime(failureTime[failureCounter]);
-                        time = failureTime[failureCounter];
-                        if (failureCounter < this.supersteps - 1) {
-                            failureCounter++;
-                        }
-                        if (this.checkpointStrategy.getClass() == NoCheckpoint.class) {
-                            return iterationUnits;
-                        }
-//                        System.out.println("fas;s:"+lastCheckpoint+","+superstep);
-                        superstep = (lastCheckpoint == -1) ? 0 : lastCheckpoint;
-
-
-                        continue;
-                    }
+                    // do not enable kill at recovery period
+//                    if (failureCounter < failureInterval.length && failureInterval[failureCounter] + lastFailtime >= time && failureInterval[failureCounter] + lastFailtime <= time + recoveryOverhead) {//fail during recovery
+//                        time = failureInterval[failureCounter] + lastFailtime;
+//                        iterationUnit.setKillTime(time);
+//                        lastFailtime = time;
+//                        if (failureCounter < this.supersteps - 1) {
+//                            failureCounter++;
+//                        }
+//                        if (this.checkpointStrategy.getClass() == NoCheckpoint.class) {
+//                            return iterationUnits;
+//                        }
+////                        System.out.println("fas;s:"+lastCheckpoint+","+superstep);
+//                        superstep = (lastCheckpoint == -1) ? 0 : lastCheckpoint;
+//
+//
+//                        continue;
+//                    }
                     time += recoveryOverhead;
                     iterationUnit.setRecoveryOverheadEnd(time);
                 }
@@ -280,22 +285,23 @@ public class Simulator implements Cloneable {
             CheckpointStatus checkpointStatus = this.checkpointStrategy.getCheckpointStatus(superstep, checkpointCostActual, this.recoveryOverhead, this.lastCheckpoint, this.computeTime);
             if (checkpointStatus == CheckpointStatus.CHECKPOINT) {
                 iterationUnit.setCheckpointStart(time);
-
-                if (failureCounter<failureTime.length&&failureTime[failureCounter] >= time && failureTime[failureCounter] <= time + checkpointCost[checkpointCounter]) {
-                    iterationUnit.setKillTime(failureTime[failureCounter]);
-                    time = failureTime[failureCounter];
-
-                    if (failureCounter < this.supersteps - 1) {
-                        failureCounter++;
-                    }
-
-                    if (this.checkpointStrategy.getClass() == NoCheckpoint.class) {
-                        return iterationUnits;
-                    }
-                    superstep = (lastCheckpoint == -1) ? 0 : lastCheckpoint;
-
-                    continue;
-                }
+//                System.out.println("failtime:"+(failureInterval[failureCounter] + lastFailtime));
+                //do not enable kill at checkpoint period
+//                if (failureCounter < failureInterval.length && failureInterval[failureCounter] + lastFailtime >= time && failureInterval[failureCounter] + lastFailtime <= time + checkpointCost[checkpointCounter]) {
+//                    time = failureInterval[failureCounter] + lastFailtime;
+//                    iterationUnit.setKillTime(time);
+//                    lastFailtime = time;
+//                    if (failureCounter < this.supersteps - 1) {
+//                        failureCounter++;
+//                    }
+//
+//                    if (this.checkpointStrategy.getClass() == NoCheckpoint.class) {
+//                        return iterationUnits;
+//                    }
+//                    superstep = (lastCheckpoint == -1) ? 0 : lastCheckpoint;
+//
+//                    continue;
+//                }
                 time += checkpointCost[checkpointCounter];
                 checkpointCostActual.add(checkpointCost[checkpointCounter]);
                 checkpointCounter++;
@@ -306,10 +312,13 @@ public class Simulator implements Cloneable {
             //do compute
 
             iterationUnit.setComputeStart(time);
-            if (failureCounter<failureTime.length&&failureTime[failureCounter] >= time && failureTime[failureCounter] <= time + computeTime[superstep]) {
-                iterationUnit.setKillTime(failureTime[failureCounter]);
-                time = failureTime[failureCounter];
+//            if (failureCounter < failureInterval.length && failureInterval[failureCounter] + lastFailtime >= time && failureInterval[failureCounter] + lastFailtime <= time + computeTime[superstep]) {
+            if (failureCounter < failureInterval.length && failureInterval[failureCounter] + lastFailtime <= time + computeTime[superstep]) {
 
+//                time = failureInterval[failureCounter] + lastFailtime;
+                time=Math.max((failureInterval[failureCounter] + lastFailtime),time);
+                iterationUnit.setKillTime(time);
+                lastFailtime = time;
                 if (failureCounter < this.supersteps - 1) {
                     failureCounter++;
                 }
