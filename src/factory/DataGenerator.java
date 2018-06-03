@@ -34,7 +34,7 @@ public class DataGenerator {
         return dataList;
     }
 
-//    public static double getPoissonDistributionDensity(int k, int lambda) {
+    //    public static double getPoissonDistributionDensity(int k, int lambda) {
 //        int kProd = 1;
 //        for (int i = 1; i <= k; i++) {
 //            kProd *= i;
@@ -42,7 +42,7 @@ public class DataGenerator {
 //        return Math.pow(lambda, k) * Math.pow(Math.E, -lambda) / kProd;
 //    }
     //expected value is 1/lambda in a period of "unit" time
-    public static double[] getExponentialDistributionData(int size,double lambda) {
+    public static double[] getExponentialDistributionData(int size, double lambda) {
         double[] dataList = new double[size];
         for (int i = 0; i < size; i++) {
             dataList[i] = -1 / lambda * Math.log(Math.random());//                x = -(1 / lamda) * Math.log(z);
@@ -55,9 +55,9 @@ public class DataGenerator {
     public static int[] modifyData(double[] computeTime, int multiplier, int minValue) {
         int[] dataList = new int[computeTime.length];
         for (int i = 0; i < computeTime.length; i++) {
-            dataList[i] =(int)Math.round(computeTime[i]*multiplier);
-            if(dataList[i]<minValue)
-                dataList[i]=minValue;
+            dataList[i] = (int) Math.round(computeTime[i] * multiplier);
+            if (dataList[i] < minValue)
+                dataList[i] = minValue;
         }
         return dataList;
     }

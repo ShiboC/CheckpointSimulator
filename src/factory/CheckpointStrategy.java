@@ -3,7 +3,7 @@ package factory;
 import java.util.ArrayList;
 
 public abstract class CheckpointStrategy {
-    private int interval=0;
+    private int interval = 0;
 
     public int getInterval() {
         return interval;
@@ -13,6 +13,6 @@ public abstract class CheckpointStrategy {
         this.interval = interval;
     }
 
-    public abstract CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint,  int[] computeTime);
+    public abstract CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint, int[] computeTime);
 
 }

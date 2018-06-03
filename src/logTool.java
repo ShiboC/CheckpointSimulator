@@ -77,7 +77,7 @@ public class logTool {
 
     public static void main(String[] args) throws Exception {
         logTool logTool=new logTool();
-        logTool.getFileList("E:\\11-TUB\\Thesis\\0516");
+        logTool.getFileList("E:\\11-TUB\\Thesis\\0530");
 //        System.out.println(logTool.outFiles);
 //        getLogInfo("E:\\11-TUB\\Thesis\\新建文件夹\\application_1526231213015_0002\\container_1526231213015_0002_01_000002\\stdout");
         for (File f:logTool.outFiles) {

@@ -2,15 +2,15 @@ package factory;
 
 //granularity: attempt+superstep
 public class IterationUnit {
-    private int attepmt=0; //job attempt, increment when a job is restarted
-    private int superstep=0;
-    private long killTime=0; //this superstep is killed or not
-    private long checkpointStart=0;
-    private long checkpointEnd=0;
-    private long computeStart=0;
-    private long computeEnd=0;
-    private long recoveryOverheadStart=0;
-    private long recoveryOverheadEnd=0;
+    private int attepmt = 0; //job attempt, increment when a job is restarted
+    private int superstep = 0;
+    private long killTime = 0; //this superstep is killed or not
+    private long checkpointStart = 0;
+    private long checkpointEnd = 0;
+    private long computeStart = 0;
+    private long computeEnd = 0;
+    private long recoveryOverheadStart = 0;
+    private long recoveryOverheadEnd = 0;
 
     @Override
     public String toString() {
@@ -20,33 +20,33 @@ public class IterationUnit {
                 ", killTime=" + killTime +
                 ", checkpointStart=" + checkpointStart +
                 ", checkpointEnd=" + checkpointEnd +
-                ", checkpointDuration=" + (checkpointEnd-checkpointStart) +
+                ", checkpointDuration=" + (checkpointEnd - checkpointStart) +
 
                 ", computeStart=" + computeStart +
                 ", computeEnd=" + computeEnd +
-                ", computeDuration=" + (computeEnd-computeStart) +
+                ", computeDuration=" + (computeEnd - computeStart) +
 
                 ", recoveryOverheadStart=" + recoveryOverheadStart +
                 ", recoveryOverheadEnd=" + recoveryOverheadEnd +
-                ", recoveryOverheadDuration=" + (recoveryOverheadEnd-recoveryOverheadStart) +
+                ", recoveryOverheadDuration=" + (recoveryOverheadEnd - recoveryOverheadStart) +
 
                 '}';
     }
 
     public String toCsvString() {
-        return  attepmt +
+        return attepmt +
                 "," + superstep +
                 "," + killTime +
                 "," + checkpointStart +
                 "," + checkpointEnd +
-                ","+(checkpointEnd-checkpointStart)+
+                "," + (checkpointEnd - checkpointStart) +
                 "," + computeStart +
                 "," + computeEnd +
-                "," + (computeEnd-computeStart) +
+                "," + (computeEnd - computeStart) +
                 "," + recoveryOverheadStart +
-                "," + recoveryOverheadEnd+
-        "," + (recoveryOverheadEnd-recoveryOverheadStart)
-        ;
+                "," + recoveryOverheadEnd +
+                "," + (recoveryOverheadEnd - recoveryOverheadStart)
+                ;
     }
 
     public int getAttepmt() {
