@@ -13,6 +13,6 @@ public abstract class CheckpointStrategy {
         this.interval = interval;
     }
 
-    public abstract CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint, int[] computeTime);
+    public abstract CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int lastCheckpoint, int[] computeTime);
 
 }

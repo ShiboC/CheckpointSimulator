@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class DynamicCheckpoint extends CheckpointStrategy {
     @Override
-    public CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int recoveryOverhead, int lastCheckpoint, int[] computeTime) {
+    public CheckpointStatus getCheckpointStatus(int superstep, ArrayList<Integer> checkpointCost, int lastCheckpoint, int[] computeTime) {
 //        System.out.println("supersteps:"+superstep+",last checkpoint:"+lastCheckpoint);
         if (lastCheckpoint == -1) {
             return CheckpointStatus.CHECKPOINT;

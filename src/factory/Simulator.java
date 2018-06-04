@@ -158,7 +158,7 @@ public class Simulator implements Cloneable {
                 iterationUnits.add(iterationUnit);
             }
             //do checkpoint
-            CheckpointStatus checkpointStatus = this.checkpointStrategy.getCheckpointStatus(superstep, checkpointCostActual, this.recoveryOverhead, this.lastCheckpoint, this.computeTime);
+            CheckpointStatus checkpointStatus = this.checkpointStrategy.getCheckpointStatus(superstep, checkpointCostActual, this.lastCheckpoint, this.computeTime);
             if (checkpointStatus == CheckpointStatus.CHECKPOINT) {
                 iterationUnit.setCheckpointStart(time);
                 time += checkpointCost[checkpointCounter];
@@ -238,7 +238,7 @@ public class Simulator implements Cloneable {
                 iterationUnits.add(iterationUnit);
             }
             //do checkpoint
-            CheckpointStatus checkpointStatus = this.checkpointStrategy.getCheckpointStatus(superstep, checkpointCostActual, this.recoveryOverhead, this.lastCheckpoint, this.computeTime);
+            CheckpointStatus checkpointStatus = this.checkpointStrategy.getCheckpointStatus(superstep, checkpointCostActual,  this.lastCheckpoint, this.computeTime);
             if (checkpointStatus == CheckpointStatus.CHECKPOINT) {
                 iterationUnit.setCheckpointStart(time);
                 // usually not enable kill at recovery period
