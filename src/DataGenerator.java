@@ -1,9 +1,7 @@
-package factory;
-
-import java.util.ArrayList;
 import java.util.Random;
 
 public class DataGenerator {
+    //Return a list of same data simply
     public static int[] getSameData(int size, int value) {
         int[] dataList = new int[size];
 
@@ -13,7 +11,7 @@ public class DataGenerator {
 
         return dataList;
     }
-
+    // Return a list of data follows normal distribution density function.
     public static double[] getNormalDistributionDensity(int size, double mean, double std_dev) {
 
         double[] dataList = new double[size];
@@ -23,7 +21,7 @@ public class DataGenerator {
         }
         return dataList;
     }
-
+    //Return a list of data follows normal distribution. Note that data from this function follows normal distribution, different from the last one which follows distribution density curve
     public static double[] getNormalDistributionData(int size, double mean, double std_dev) {
 
         double[] dataList = new double[size];
@@ -34,28 +32,22 @@ public class DataGenerator {
         return dataList;
     }
 
-    //    public static double getPoissonDistributionDensity(int k, int lambda) {
-//        int kProd = 1;
-//        for (int i = 1; i <= k; i++) {
-//            kProd *= i;
-//        }
-//        return Math.pow(lambda, k) * Math.pow(Math.E, -lambda) / kProd;
-//    }
-    //expected value is 1/lambda in a period of "unit" time
+
+    //Return a list of data follows exponential distribution, expected value is 1/lambda in a period of "unit" time
     public static double[] getExponentialDistributionData(int size, double lambda) {
         double[] dataList = new double[size];
         for (int i = 0; i < size; i++) {
-            dataList[i] = -1 / lambda * Math.log(Math.random());//                x = -(1 / lamda) * Math.log(z);
+            dataList[i] = -1 / lambda * Math.log(Math.random());
         }
         return dataList;
     }
 
 
     //multiply the datalist and make sure all data are not smaller than minValue
-    public static int[] modifyData(double[] computeTime, int multiplier, int minValue) {
-        int[] dataList = new int[computeTime.length];
-        for (int i = 0; i < computeTime.length; i++) {
-            dataList[i] = (int) Math.round(computeTime[i] * multiplier);
+    public static int[] modifyData(double[] dataArray, int multiplier, int minValue) {
+        int[] dataList = new int[dataArray.length];
+        for (int i = 0; i < dataArray.length; i++) {
+            dataList[i] = (int) Math.round(dataArray[i] * multiplier);
             if (dataList[i] < minValue)
                 dataList[i] = minValue;
         }

@@ -1,40 +1,50 @@
-package simple;
-
 //granularity: attempt+superstep
 public class IterationUnit {
-    private int attepmt=0; //job attempt, increment when a job is restarted
-    private int superstep=0;
-    private boolean restarted=false; //this superstep is restarted or not
-    private boolean killed=false; //this superstep is killed or not
-    private long checkpointStart=0;
-    private long checkpointEnd=0;
-//    private long checkpointDuration=0;
-    private long computeStart=0;
-    private long computeEnd=0;
-//    private long computeDuration=0;
-    private long recoveryOverheadStart=0;
-    private long recoveryOverheadEnd=0;
+    private int attepmt = 0; //job attempt, increment when a job is restarted
+    private int superstep = 0;
+    private long killTime = 0; //this superstep is killed or not
+    private long checkpointStart = 0;
+    private long checkpointEnd = 0;
+    private long computeStart = 0;
+    private long computeEnd = 0;
+    private long recoveryOverheadStart = 0;
+    private long recoveryOverheadEnd = 0;
 
     @Override
     public String toString() {
         return "simple.IterationUnit{" +
                 "attepmt=" + attepmt +
                 ", superstep=" + superstep +
-                ", restarted=" + restarted +
-                ", killed=" + killed +
+                ", killTime=" + killTime +
                 ", checkpointStart=" + checkpointStart +
                 ", checkpointEnd=" + checkpointEnd +
-                ", checkpointDuration=" + (checkpointEnd-checkpointStart) +
+                ", checkpointDuration=" + (checkpointEnd - checkpointStart) +
 
                 ", computeStart=" + computeStart +
                 ", computeEnd=" + computeEnd +
-                ", computeDuration=" + (computeEnd-computeStart) +
+                ", computeDuration=" + (computeEnd - computeStart) +
 
                 ", recoveryOverheadStart=" + recoveryOverheadStart +
                 ", recoveryOverheadEnd=" + recoveryOverheadEnd +
-                ", recoveryOverheadDuration=" + (recoveryOverheadEnd-recoveryOverheadStart) +
+                ", recoveryOverheadDuration=" + (recoveryOverheadEnd - recoveryOverheadStart) +
 
                 '}';
+    }
+
+    public String toCsvString() {
+        return attepmt +
+                "," + superstep +
+                "," + killTime +
+                "," + checkpointStart +
+                "," + checkpointEnd +
+                "," + (checkpointEnd - checkpointStart) +
+                "," + computeStart +
+                "," + computeEnd +
+                "," + (computeEnd - computeStart) +
+                "," + recoveryOverheadStart +
+                "," + recoveryOverheadEnd +
+                "," + (recoveryOverheadEnd - recoveryOverheadStart)
+                ;
     }
 
     public int getAttepmt() {
@@ -53,20 +63,13 @@ public class IterationUnit {
         this.superstep = superstep;
     }
 
-    public boolean isRestarted() {
-        return restarted;
+
+    public long getKillTime() {
+        return killTime;
     }
 
-    public void setRestarted(boolean restarted) {
-        this.restarted = restarted;
-    }
-
-    public boolean isKilled() {
-        return killed;
-    }
-
-    public void setKilled(boolean killed) {
-        this.killed = killed;
+    public void setKillTime(long killTime) {
+        this.killTime = killTime;
     }
 
     public long getCheckpointStart() {
